@@ -1,0 +1,80 @@
+---
+title: Regression Models Project "Motor Trend"
+author: 'JHU Data Science'
+date: 'By Jean Marie Cimula'
+output: html_document
+---
+
+
+###Synopsis
+
+The goal of this paper is to present:  the concept of prediction in  Multiple Regression, the assumptions underlying multiple regression analysis and variable selection.
+We want to predict the consumption of cars in the RStudio datasets mtcars containing 32 observations on 11 variables.
+```{r}
+#mpg: Miles per US gallon
+#cyl: Number of cylinders
+#disp: Displacement (cubic inches)
+#hp: Gross horsepower
+#drat: Rear axle ratio
+#wt: Weight (lb / 1000)
+#qsec: 1 / 4 mile time
+#vs: V/S
+#am: Transmission (0 = automatic, 1 = manual)
+#gear: Number of forward gears
+#carb: Number of carburetors
+```
+```{r}
+#Loading libraries
+library(ggplot2)
+library(MASS)
+```
+
+####Exploratory Data Analysis
+```{r}
+#Dataset
+data(mtcars)
+
+#For predicting the consumption, we prefer to three dependent variable(Transmission, Cylinder,Displacement and Weight) and one response variable (Miles per US gallon)
+
+#Linear Model
+varReg <- lm(mpg ~ cyl + wt + am + disp,data=mtcars)
+summary(varReg)
+```
+
+Let remove disp because its p-value
+```{r}
+#New model : mpg ~ cyl + wt + am 
+varLm <- lm(mpg ~ cyl + wt + am,data=mtcars)
+summary(varLm)
+```
+
+Multiple R-squared and Adjusted R-squared of both models are roughly equals 
+
+```{r}
+#Variable selection
+stepAIC(varLm, direction="both")$anova
+```
+
+We can see above the result of the final model which shows that Cylinder and Weight are the relevant variables to explain car consumption. 
+
+####Appendix
+
+```{r}
+#Pair plots of dependent variables of the lm that spawned the final model
+data <- mtcars[,c("am","cyl","wt")]
+pairs(data)
+```
+```{r}
+#LM Plots
+par(mfrow =c(2,2))
+plot(varLm)
+```
+```{r}
+#Residuals vs variables
+Res <- residuals(varLm)
+par(mfrow =c(2,2))
+for (j in 1:3){ 
+               plot(data[,j],Res, ylab="Residuals", xlab=names(data)[j],col="red")
+               abline(h=0)
+              }
+```
